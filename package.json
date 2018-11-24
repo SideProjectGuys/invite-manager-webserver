@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
     "watch-server": "nodemon --watch 'src/**/*' -e ts,tsx --exec 'ts-node' ./src/server.ts"
   },
   "repository": {
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/SideProjectGuys/invite-manager-webserver#readme",
   "dependencies": {
     "koa": "^2.6.2",
+    "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
     "koa-router": "^7.4.0",
     "nodemon": "^1.18.6"
