@@ -1,0 +1,10 @@
+{
+  "links": {
+    "catchAllRedirect": "https://docs.invitemanager.co/bot/",
+    "webhooks": {
+      "selly": "https://discordapp.com/api/webhooks/515930002928304140/t_J5fKHWkQnn8eszyf05COnTqop5Dp2h-n-dRxGgSfn6ztX0xlbyIrmylaRedeY1uZbg",
+      "analytics": "https://discordapp.com/api/webhooks/515940990259953664/2O5Ijk8tsKC4IW51R31oNdL3EZ3KN6TYR7q4OJuEdOB5RPki6E47eiXsTXCXQ19_xUtT"
+    },
+    "botInviteLink": "https://discordapp.com/oauth2/authorize?client_id=409875566800404480&permissions=268435616&scope=bot"
+  }
+}
