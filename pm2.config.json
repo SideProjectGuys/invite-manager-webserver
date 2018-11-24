@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "webserver",
+      "script": "dist/src/server.js",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss.SSS"
+    }
+  ]
+}
