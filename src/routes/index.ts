@@ -92,7 +92,7 @@ invManRouter.get("/check/patreon", async ctx => {
     {
       key: "fields[pledge]",
       value:
-        "total_historical_amount_cents,is_paused,declined_since,amount_cents"
+        "created_at,total_historical_amount_cents,is_paused,declined_since,amount_cents"
     },
     {
       key: "fields[user]",
