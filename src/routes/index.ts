@@ -1,6 +1,9 @@
 import * as Router from "koa-router";
 import { sendWebhook } from "../functions";
 import * as config from "../../config.json";
+import { SellyWebhook } from "../types/Selly";
+const patreonAPI = require("patreon").patreon;
+const patreonAPIClient = patreonAPI(config.patreon.accessToken);
 
 const invManRouter = new Router();
 invManRouter.get("/add-bot/", async ctx => {
@@ -26,37 +29,6 @@ invManRouter.get("/add-bot/", async ctx => {
   sendWebhook(config.links.webhooks.analytics, embed);
   ctx.redirect(config.links.botInviteLink);
 });
-
-export interface SellyWebhookCustomAttribute {}
-
-export interface SellyWebhook {
-  id: string;
-  product_id: string;
-  email: string;
-  ip_address: string;
-  country_code: string;
-  product_title: string;
-  user_agent: string;
-  value: string;
-  quantity: number;
-  currency: string;
-  gateway: string;
-  risk_level: number;
-  status: number;
-  delivered?: any;
-  crypto_value?: any;
-  crypto_address?: any;
-  crypto_channel?: any;
-  crypto_received: number;
-  crypto_confirmations: number;
-  referral?: any;
-  usd_value: string;
-  exchange_rate: string;
-  custom: SellyWebhookCustomAttribute;
-  created_at: Date;
-  updated_at: Date;
-  webhook_type: number;
-}
 
 invManRouter.post("/selly", async ctx => {
   const sellyRequest: SellyWebhook = ctx.request.body as SellyWebhook;
@@ -100,6 +72,79 @@ invManRouter.post("/selly", async ctx => {
   };
   sendWebhook(config.links.webhooks.selly, embed);
   console.log(sellyRequest);
+});
+
+invManRouter.get("/check/patreon", async ctx => {
+  if (ctx.query.apiKey !== config.apiKey) {
+    ctx.status = 401;
+    return;
+  }
+
+  const query = [
+    {
+      key: "page[count]",
+      value: "100" // 100 seems to be max
+    },
+    {
+      key: "include",
+      value: "reward.null,patron.null"
+    },
+    {
+      key: "fields[pledge]",
+      value:
+        "total_historical_amount_cents,is_paused,declined_since,amount_cents"
+    },
+    {
+      key: "fields[user]",
+      value: "email,social_connections"
+    },
+    {
+      key: "fields[reward]",
+      value: "amount_cents,title"
+    }
+  ];
+
+  const uriQuery = query
+    .map(component => {
+      return `${encodeURIComponent(component.key)}=${encodeURIComponent(
+        component.value
+      )}`;
+    })
+    .join("&");
+  const { rawJson } = await patreonAPIClient(
+    `/campaigns/${config.patreon.campaignID}/pledges?${uriQuery}`
+  );
+
+  const user = rawJson.included.find((obj: any) => {
+    if (obj.type !== "user") {
+      return false;
+    }
+    if (!obj.attributes.social_connections.discord) {
+      return false;
+    }
+    return (
+      obj.attributes.social_connections.discord.user_id === ctx.query.userId
+    );
+  });
+
+  if (!user) {
+    ctx.status = 404;
+    return;
+  }
+
+  const pledge = rawJson.data.find((obj: any) => {
+    if (obj.type !== "pledge") {
+      return false;
+    }
+    return obj.relationships.patron.data.id === user.id;
+  });
+
+  if (!pledge) {
+    ctx.status = 500;
+    return;
+  }
+
+  ctx.body = pledge.attributes;
 });
 
 // Fallback for unknown URLs
